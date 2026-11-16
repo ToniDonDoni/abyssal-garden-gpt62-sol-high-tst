@@ -1,0 +1,35 @@
+name: Validate WebGPU scene
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shader-validation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/naga
+          key: ${{ runner.os }}-naga-cli-30.0.1-v1
+      - name: Install pinned Naga shader validator
+        run: |
+          if ! command -v naga >/dev/null 2>&1; then
+            cargo install naga-cli --version 30.0.1 --locked
+          fi
+          naga --version
+      - name: Check inline JS and compile WGSL
+        run: node tools/validate.mjs
