@@ -2,6 +2,10 @@
 
 A procedural fantasy underwater world you can explore with a free-flying camera. Features swaying kelp, glowing reefs, rock formations, a sunken ship, manta rays, fish, bubbles, caustics, and underwater fog.
 
+## Inspired by
+
+The [original Abyssal Garden prompt](https://github.com/Noniv/abyssal-garden/blob/main/prompt.txt) by [Noniv](https://github.com/Noniv).
+
 ## Prerequisites
 
 - **Development environment:** ChatGPT 6.1 SOL, High reasoning, in ChatGPT with GitHub integration.
