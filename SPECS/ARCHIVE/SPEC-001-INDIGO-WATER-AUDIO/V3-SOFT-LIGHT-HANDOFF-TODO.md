@@ -1,3 +1,5 @@
+> Historical input for [SPEC-001-INDIGO-WATER-AUDIO](../../SPEC-001-INDIGO-WATER-AUDIO.md). This is the earlier soft-light handoff that the current specification supersedes. Statements below describe that checkpoint, not the current requirements.
+
 # SPEC: index.html V3 WebGPU Light Fidelity and Visual Verification
 
 ## Versions
@@ -10,8 +12,8 @@
 - **Scene decomposition:** [V3 scene map](https://github.com/ToniDonDoni/adavilazil/blob/feat/abyssal-garden-kuindzhi-lalique/test/explore_visual_styles/kuindzhi_lalique_abyssal_garden/SPEC-009-ABYSSAL-GARDEN-KUINDZHI-LALIQUE-V3-SCENE-MAP.md)
 - **Prior SVG-only assessment:** [V3 VERIFICATION-v2](https://github.com/ToniDonDoni/adavilazil/blob/feat/abyssal-garden-kuindzhi-lalique/test/explore_visual_styles/kuindzhi_lalique_abyssal_garden/SPEC-009-ABYSSAL-GARDEN-KUINDZHI-LALIQUE-V3-VERIFICATION-v2.md) (does **not** verify the WebGPU game)
 - **Original inspiration:** [Noniv/abyssal-garden/prompt.txt](https://github.com/Noniv/abyssal-garden/blob/main/prompt.txt)
-- **Prototype history:** [index_README.md](index_README.md)
-- **Implementation baseline:** [index.html](index.html) in this feature branch, checked-in checkpoint `b97271a3a0f14bb17ec9c79769d5ff2ebe2c395a`
+- **Prototype history:** [index_README.md](https://github.com/ToniDonDoni/abyssal-garden-gpt62-sol-high-tst/blob/9fd6f6613ab31cb48567b2d17b7fe51e9bb5c55e/index_README.md)
+- **Implementation baseline:** [index.html](https://github.com/ToniDonDoni/abyssal-garden-gpt62-sol-high-tst/blob/9fd6f6613ab31cb48567b2d17b7fe51e9bb5c55e/index.html) in this feature branch, checked-in checkpoint `b97271a3a0f14bb17ec9c79769d5ff2ebe2c395a`
 
 ## 1. Problem and Current State
 
@@ -114,7 +116,7 @@ The original Noniv prompt prioritizes visual quality, stable frame pacing and sm
 
 ## 6. ToDo
 
-- [ ] Review `index.html` and [index_README.md](index_README.md) to understand the procedural engine, provenance, user feedback and constraints.
+- [ ] Review `index.html` and [index_README.md](https://github.com/ToniDonDoni/abyssal-garden-gpt62-sol-high-tst/blob/9fd6f6613ab31cb48567b2d17b7fe51e9bb5c55e/index_README.md) to understand the procedural engine, provenance, user feedback and constraints.
 - [ ] Establish and document a **repeatable actual WebGPU render** in Chrome; confirm rendering rather than just passing JavaScript syntax.
 - [ ] Capture baseline frames, including the opening view, and a baseline fly-through **before** editing the shaders.
 - [ ] Diagnose the present halo/ray appearance using the current drawing, blending, depth and projection paths. Document what actually caused any discrepancy.

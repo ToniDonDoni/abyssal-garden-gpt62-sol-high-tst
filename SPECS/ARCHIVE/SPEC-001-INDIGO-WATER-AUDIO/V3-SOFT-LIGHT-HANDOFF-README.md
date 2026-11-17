@@ -1,16 +1,18 @@
+> Historical input for [SPEC-001-INDIGO-WATER-AUDIO](../../SPEC-001-INDIGO-WATER-AUDIO.md). This is the earlier soft-light handoff that the current specification supersedes. Statements below describe that checkpoint, not the current requirements.
+
 # index.html: Provenance and Handoff
 
 ## Purpose
 
 This directory contains the **single-file procedural WebGPU Abyssal Garden game**. The current `index.html` is an interactive, freely navigable 3D prototype, **not** a flat SVG slideshow. It combines an existing procedural WebGPU game with art direction from the separate **Kuindzhi × Lalique V3** visual study.
 
-**Current status:** The HTML is a checkpoint for the next agent. Its **soft mint halo and underwater light shafts have not been demonstrated to match the V3 SVG in actual rendered gameplay**. The next tasks and proof requirements are in [index_TODO.md](index_TODO.md). Do not describe this checkpoint as visually verified.
+**Current status:** The HTML is a checkpoint for the next agent. Its **soft mint halo and underwater light shafts have not been demonstrated to match the V3 SVG in actual rendered gameplay**. The next tasks and proof requirements are in [index_TODO.md](https://github.com/ToniDonDoni/abyssal-garden-gpt62-sol-high-tst/blob/9fd6f6613ab31cb48567b2d17b7fe51e9bb5c55e/index_TODO.md). Do not describe this checkpoint as visually verified.
 
 ## Original inspiration and brief
 
 - **Original inspiration prompt:** [Noniv/abyssal-garden, `prompt.txt`](https://github.com/Noniv/abyssal-garden/blob/main/prompt.txt).
 - **Source of the navigable WebGPU game:** [ToniDonDoni/abyssal-garden-gpt62-sol-high-tst](https://github.com/ToniDonDoni/abyssal-garden-gpt62-sol-high-tst), particularly the original [`feat/procedural-webgpu-abyssal-garden` implementation](https://github.com/ToniDonDoni/abyssal-garden-gpt62-sol-high-tst/blob/feat/procedural-webgpu-abyssal-garden/index.html).
-- **Current page:** [`index.html`](index.html) in the `feat/v3-soft-light-verification-handoff` branch.
+- **Current page:** [`index.html`](https://github.com/ToniDonDoni/abyssal-garden-gpt62-sol-high-tst/blob/9fd6f6613ab31cb48567b2d17b7fe51e9bb5c55e/index.html) in the `feat/v3-soft-light-verification-handoff` branch.
 
 The **external prompt is a design/technical inspiration**, not a claim that this file was copied directly from Noniv's repository. Its brief asks for a browser-based procedural fantasy underwater scene using **WebGPU**, no Three.js/Babylon.js or downloaded model/texture assets, one self-contained HTML file, a free-flying camera, animated sea life, a sunken ship, and a whale-fluke sculpture.
 
@@ -51,4 +53,4 @@ The game should implement the visual concept defined in **adavilazil**, rather t
 
 ## Next action
 
-Read [index_TODO.md](index_TODO.md). Make the light and rays match the SVG without breaking movement or the rest of the underwater scene; render **real WebGPU screenshots** of the running page and record separate versioned verification evidence. Do **not** silently mark unobserved results as pass.
+Read [index_TODO.md](https://github.com/ToniDonDoni/abyssal-garden-gpt62-sol-high-tst/blob/9fd6f6613ab31cb48567b2d17b7fe51e9bb5c55e/index_TODO.md). Make the light and rays match the SVG without breaking movement or the rest of the underwater scene; render **real WebGPU screenshots** of the running page and record separate versioned verification evidence. Do **not** silently mark unobserved results as pass.
