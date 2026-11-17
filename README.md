@@ -31,13 +31,16 @@ Open the root `index.html` directly in a recent WebGPU-enabled Chrome browser. N
 
 A small `Version 2.0` label is visible at the bottom of the first screen. This label is maintained in `index.html`.
 
-## Current specification and reference
+## Specifications and references
 
-- [Indigo scene and soundtrack specification](SPECS/SPEC-001-INDIGO-WATER-AUDIO.md)
+- [SPEC-001: Indigo scene and original underwater sound](SPECS/SPEC-001-INDIGO-WATER-AUDIO.md)
+- [SPEC-002: Generative Java4Shell score](SPECS/SPEC-002-GENERATIVE-JAVA4SHELL-SCORE.md)
 - [Supplied indigo color reference](SPECS/REFERENCES/SPEC-001-INDIGO-WATER-AUDIO-INDIGO.png)
 - [Rendered observations and historical procedural-audio review](SPECS/SPEC-001-INDIGO-WATER-AUDIO-REVIEW.md)
 
-Earlier handoff notes associated with this specification are grouped under [SPECS/ARCHIVE/SPEC-001-INDIGO-WATER-AUDIO/](SPECS/ARCHIVE/SPEC-001-INDIGO-WATER-AUDIO/). The page runs without installed packages or a server.
+Use the next available number for each new specification and link to any requirements it supersedes. Keep earlier specifications intact.
+
+Earlier handoff notes for SPEC-001 are grouped under [SPECS/ARCHIVE/SPEC-001-INDIGO-WATER-AUDIO/](SPECS/ARCHIVE/SPEC-001-INDIGO-WATER-AUDIO/). The page runs without installed packages or a server.
 
 ## Code checks
 
