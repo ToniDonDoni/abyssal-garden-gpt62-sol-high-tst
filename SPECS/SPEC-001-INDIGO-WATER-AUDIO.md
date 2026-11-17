@@ -35,9 +35,11 @@ These documents explain the predecessor checkpoint; this specification defines t
 ## Documentation and delivery
 
 - **D01:** current specifications, this reference image and a separate outcome review live under `SPECS/`. The reference filename shares the specification's stem. Earlier handoff documents are historical material in `SPECS/ARCHIVE/SPEC-001-INDIGO-WATER-AUDIO/`, not root-level active requirements.
-- **D02:** the new pull request contains the spec and the corresponding code change. The page remains directly usable without a new build system, package manifest, test suite or automation workflow.
+- **D02:** the pull request contains the spec and the corresponding code change. The game remains one readable root `index.html`, opened directly without a build step or runtime packages.
 - **D03:** implementation evidence is recorded separately in `SPEC-001-INDIGO-WATER-AUDIO-REVIEW.md`, including actual screenshots/audio observations, remaining visual differences and limits of the audio check. Temporary capture scripts and generated recordings stay local.
-- **D04 — Visible code revision:** the running page displays a short implementation-commit hash and links to that commit in this game repository. It identifies the version of the displayed game rather than the artistic-source repository or a later unrelated branch head. The M control is explicitly documented as mute/unmute and works on repeated presses.
+- **D04 — Visible version:** the first screen carries a small `Version 2.0` label maintained directly in `index.html`. The M control is explicitly documented as mute/unmute and works on repeated presses.
+
+- **D05 — Code validation:** the action lints the root `index.html`, checks its inline JavaScript syntax and compiles all three WGSL modules. It does not build, stamp or generate a second HTML file.
 
 ## Sound research and selected approach
 

@@ -32,9 +32,9 @@ Before entry there was no audio context. One M press changed the control to off 
 
 Audio excerpts and temporary inspection scripts stay local. The WAV recordings are evidence produced from browser output, not runtime game assets. Capture confirms the browser's audio signal, not the user's physical speaker routing or a subjective claim of hydrophone realism.
 
-## Revision trace and limits
+## Version and limits
 
-The page's code badge identifies implementation commit [`31a760d`](https://github.com/ToniDonDoni/abyssal-garden-gpt62-sol-high-tst/commit/31a760dc28a6082dc43fb4364507b38e7e63ab1b) in this game repository and links to it. Its short hash remains visible independently of the HUD toggle. A later metadata-only stamp records that implementation hash; it does not add a build system or change the scene/audio logic.
+The first screen displays a small `Version 2.0` label. The root `index.html` is the single readable and playable source; no generated page or commit-stamping step is used.
 
 The artistic result still differs from the color reference in geometry, subject placement and close-up material finesse. The visibility handler was exercised with a synthetic hidden/visible signal against the real audio graph: hidden suspended it, visible resumed it, and a muted preference stayed muted. A native hidden-tab transition was not established by browser automation, so that physical transition is not claimed as an observed pass.
 
@@ -42,4 +42,8 @@ The artistic result still differs from the color reference in geometry, subject 
 
 The delivered HTML was also opened through a local file URL. Its measured audio RMS was approximately 0.0456 after entry. While muted, the context was suspended and zero output callbacks occurred during the observation window. Repeated mute/unmute, Esc pause and re-entry retained one context. The final run recorded no JavaScript or WebGPU errors.
 
-These observations establish generated browser output and control behavior. Subjective sound quality and the user's speaker route remain listening checks; a locally captured full-mix WAV excerpt is supplied with the handoff. No capture helper or generated sound file is added to the repository.
+These observations establish generated browser output and control behavior. Subjective sound quality and the user's speaker route remain listening checks; a locally captured full-mix WAV excerpt is supplied with the handoff. No capture helper or generated sound file is added to the repository. The tooling is limited to HTML linting, JavaScript syntax and WGSL compilation.
+
+## Code-validation observations
+
+The action checks `index.html` directly with HTMLHint, Node's JavaScript syntax check and Naga compilation of all three shaders. These are technical code-validity checks; artistic and sound observations remain those recorded above.

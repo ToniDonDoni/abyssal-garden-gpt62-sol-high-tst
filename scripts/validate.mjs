@@ -9,12 +9,13 @@ if (scriptTags.length !== 1 || !/\btype=["']module["']/.test(scriptTags[0][1])) 
   throw Error('Expected exactly one inline module script in index.html');
 }
 const js = scriptTags[0][2];
-const shaderNames = ['shader', 'background'];
-const shaderLiterals = [...js.matchAll(/\bconst\s+(shader|background)\s*=\s*\/\*\s*wgsl\s*\*\/\s*\x60([\s\S]*?)\x60\s*;/g)];
+const shaderNames = ['shader', 'background', 'atmosphere'];
+const shaderLiterals = [...js.matchAll(/\bconst\s+(shader|background|atmosphere)\s*=\s*\/\*\s*wgsl\s*\*\/\s*\x60([\s\S]*?)\x60\s*;/g)];
 if (shaderLiterals.length !== shaderNames.length) {
-  throw Error('Expected two inline WGSL literals; found ' + shaderLiterals.length);
+  throw Error('Expected three inline WGSL literals; found ' + shaderLiterals.length);
 }
 const sources = new Map(shaderLiterals.map((match) => [match[1], match[2]]));
+if (!shaderNames.every(name => sources.has(name))) throw Error('Missing or duplicate WGSL shader module');
 
 const dir = mkdtempSync(join(tmpdir(), 'abyssal-wgsl-'));
 try {
@@ -35,7 +36,7 @@ try {
       console.log('Validating WGSL ' + name + ' via Naga...');
       execFileSync('naga', [file], { stdio: 'inherit' });
     }
-    console.log('JavaScript syntax and both WGSL shaders passed validation.');
+    console.log('JavaScript syntax and all WGSL shaders passed validation.');
   }
 } finally {
   rmSync(dir, { recursive: true, force: true });

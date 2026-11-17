@@ -10,7 +10,7 @@ The [original Abyssal Garden prompt](https://github.com/Noniv/abyssal-garden/blo
 
 - **Development environment:** ChatGPT with GitHub integration for the original prototype; **Codex desktop** for the artistic-style refactoring, indigo transfer and procedural-audio implementation.
 - **To run:** A recent Chrome browser with WebGPU and hardware acceleration enabled.
-- **To validate locally (optional):** Node.js 22 and Naga CLI.
+- **To run code checks locally (optional):** Node.js 22, HTMLHint and Naga CLI.
 
 ## Technologies
 
@@ -25,11 +25,11 @@ No Three.js, Babylon.js, other engines, external models, or texture files.
 
 ## Run
 
-Open `index.html` in a recent WebGPU-enabled Chrome browser.
+Open the root `index.html` directly in a recent WebGPU-enabled Chrome browser. No build step is required.
 
 **Controls:** WASD to move, mouse to look, Q to descend, E to ascend, Shift to accelerate, R to reset, Esc to release the mouse and pause sound, H to toggle the HUD, **M to mute/unmute**. Press M again to restore sound. Sound starts only after entering the scene.
 
-The bottom-left code badge links to the implementation commit of the displayed game in this repository.
+A small `Version 2.0` label is visible at the bottom of the first screen. This label is maintained in `index.html`.
 
 ## Current specification and reference
 
@@ -37,9 +37,19 @@ The bottom-left code badge links to the implementation commit of the displayed g
 - [Supplied indigo color reference](SPECS/REFERENCES/SPEC-001-INDIGO-WATER-AUDIO-INDIGO.png)
 - [Rendered and audio observations](SPECS/SPEC-001-INDIGO-WATER-AUDIO-REVIEW.md)
 
-Earlier handoff notes associated with this specification are grouped under [SPECS/ARCHIVE/SPEC-001-INDIGO-WATER-AUDIO/](SPECS/ARCHIVE/SPEC-001-INDIGO-WATER-AUDIO/). The HTML page itself needs no installation or build step.
+Earlier handoff notes associated with this specification are grouped under [SPECS/ARCHIVE/SPEC-001-INDIGO-WATER-AUDIO/](SPECS/ARCHIVE/SPEC-001-INDIGO-WATER-AUDIO/). The page runs without installed packages or a server.
 
-**Validate locally:** `node tools/validate.mjs` (requires the `naga` CLI). The validator is development tooling; the scene itself needs only `index.html`.
+## Code checks
+
+The action checks the root `index.html` directly: HTMLHint lints the markup, Node checks the inline JavaScript, and Naga compiles all three WGSL modules. To run the checks locally:
+
+```sh
+npm ci --ignore-scripts
+npm run lint
+npm run check
+```
+
+The shader check requires Naga CLI. There is no build script or generated HTML copy.
 
 ## Development effort (approximate)
 
