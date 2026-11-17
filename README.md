@@ -1,6 +1,6 @@
 # Abyssal Garden
 
-A procedural fantasy underwater world you can explore with a free-flying camera. The indigo scene contains swaying kelp, enamel coral, a sunken ship, manta rays, fish, a stone whale-fluke monument, diffuse light and underwater fog. A procedural stereo soundscape adds muffled water, low pressure tones and occasional bubbles.
+A procedural fantasy underwater world you can explore with a free-flying camera. The indigo scene contains swaying kelp, enamel coral, a sunken ship, manta rays, fish, a stone whale-fluke monument, diffuse light and underwater fog. Its procedural soundtrack, **Deep Drift**, plays a repeating four-chord progression with chimes that vary in pitch and timing. The dynamics and stereo placement also vary as you explore.
 
 ## Inspired by
 
@@ -16,7 +16,7 @@ The [original Abyssal Garden prompt](https://github.com/Noniv/abyssal-garden/blo
 
 - **WebGPU + WGSL**: GPU-rendered procedural geometry, lighting, water effects, and animation.
 - **HTML5, CSS3, vanilla JavaScript**: one readable HTML file containing the scene, UI and camera controls.
-- **Web Audio API**: generated noise, oscillators, filters and envelopes; no audio files or runtime audio downloads.
+- **Web Audio API**: stereo synth voices generated in the browser without audio files or runtime downloads.
 - **4x MSAA**: edge anti-aliasing.
 - **Node.js 22 + Naga CLI**: JavaScript syntax and WGSL shader validation.
 - **GitHub Actions**: automated checks on pushes and pull requests.
@@ -27,17 +27,20 @@ No Three.js, Babylon.js, other engines, external models, or texture files.
 
 Open the root `index.html` directly in a recent WebGPU-enabled Chrome browser. No build step is required.
 
-**Controls:** WASD to move, mouse to look, Q to descend, E to ascend, Shift to accelerate, R to reset, Esc to release the mouse and pause sound, H to toggle the HUD, **M to mute/unmute**. Press M again to restore sound. Sound starts only after entering the scene.
+**Controls:** WASD to move, mouse to look, Q to descend, E to ascend, Shift to accelerate, R to reset, Esc to release the mouse and pause music, H to toggle the HUD, **M to mute/unmute**. Music starts after entering the scene and resumes from the same position after a pause.
 
 A small `Version 2.0` label is visible at the bottom of the first screen. This label is maintained in `index.html`.
 
-## Current specification and reference
+## Specifications and references
 
-- [Indigo scene and procedural-water-audio specification](SPECS/SPEC-001-INDIGO-WATER-AUDIO.md)
+- [SPEC-001: Indigo scene and original underwater sound](SPECS/SPEC-001-INDIGO-WATER-AUDIO.md)
+- [SPEC-002: Deep Drift procedural score](SPECS/SPEC-002-DEEP-DRIFT-SCORE.md)
 - [Supplied indigo color reference](SPECS/REFERENCES/SPEC-001-INDIGO-WATER-AUDIO-INDIGO.png)
-- [Rendered and audio observations](SPECS/SPEC-001-INDIGO-WATER-AUDIO-REVIEW.md)
+- [Rendered observations and historical procedural-audio review](SPECS/SPEC-001-INDIGO-WATER-AUDIO-REVIEW.md)
 
-Earlier handoff notes associated with this specification are grouped under [SPECS/ARCHIVE/SPEC-001-INDIGO-WATER-AUDIO/](SPECS/ARCHIVE/SPEC-001-INDIGO-WATER-AUDIO/). The page runs without installed packages or a server.
+Use the next available number for each new specification and link to any requirements it supersedes. Keep earlier specifications intact.
+
+Earlier handoff notes for SPEC-001 are grouped under [SPECS/ARCHIVE/SPEC-001-INDIGO-WATER-AUDIO/](SPECS/ARCHIVE/SPEC-001-INDIGO-WATER-AUDIO/). The page runs without installed packages or a server.
 
 ## Code checks
 
