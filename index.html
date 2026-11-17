@@ -15,9 +15,9 @@
 <body>
 <canvas id="view"></canvas>
 <span id="version">Version 2.0</span>
-<button id="sound" type="button" aria-pressed="true" title="Toggle procedural underwater sound (M)">Sound on · M</button>
+<button id="sound" type="button" aria-pressed="true" title="Toggle music (M)">Sound on · M</button>
 <div id="hud"><div class="top">A B Y S S A L · G A R D E N<strong>Indigo Depths</strong></div><div class="cross"></div><div class="bottom">W A S D · Drift &nbsp; | &nbsp; Q E · Descend / Ascend &nbsp; | &nbsp; Shift · Glide faster &nbsp; | &nbsp; M · Mute / Unmute</div><div class="corner">Kuindzhi × Lalique · V3 &nbsp; / &nbsp; R · Reset position &nbsp; / &nbsp; Esc · Release mouse &nbsp; / &nbsp; H · HUD</div></div>
-<div id="veil"><div class="hero"><div class="overline">Explore the moonlit canyon</div><h1>ABYSSAL<br>GARDEN</h1><p>INDIGO · LIVING DEPTHS</p><div class="action" id="action">Enter the abyss</div><p class="hint">WASD TO SWIM · MOUSE TO LOOK · Q/E VERTICAL · SHIFT BOOST · R RESTART<br>PROCEDURAL UNDERWATER SOUND · M TO MUTE / UNMUTE</p><div id="error"></div></div></div>
+<div id="veil"><div class="hero"><div class="overline">Explore the moonlit canyon</div><h1>ABYSSAL<br>GARDEN</h1><p>INDIGO · LIVING DEPTHS</p><div class="action" id="action">Enter the abyss</div><p class="hint">WASD TO SWIM · MOUSE TO LOOK · Q/E VERTICAL · SHIFT BOOST · R RESTART<br>GENERATIVE MUSIC · M TO MUTE / UNMUTE</p><div id="error"></div></div></div>
 <script type="module">
 const canvas=document.getElementById('view');
 const veil=document.getElementById('veil');
@@ -362,95 +362,96 @@ let [x,y,z,yaw,pitch]=START_POSE;
 let last=performance.now(),seconds=0;
 let showingHUD=true;
 const soundButton=document.getElementById('sound');
-let soundEnabled=true,waterAudio=null;
+// The Java4Shell score's four chords and three-part sine timbre.
+const SCORE_CHORDS=[
+ [110,164.81,261.63],[87.31,130.81,220],
+ [98,146.83,246.94],[82.41,123.47,196],
+];
+const SCORE_BAR_SECONDS=4;
+function createScoreWave(ctx){
+ return ctx.createPeriodicWave(new Float32Array(4),new Float32Array([0,1,.19,.07]),{disableNormalization:true});
+}
+function scoreNote({ctx,master,wave},time,length,pitch,level,pan=0,chime=false){
+ const tone=ctx.createOscillator(),gain=ctx.createGain(),stereo=ctx.createStereoPanner();
+ const attack=chime?.015:.28,decay=chime?5.4:.72;
+ const curve=new Float32Array(512);
+ for(let i=0;i<curve.length;i++){
+  const t=i*length/(curve.length-1);
+  curve[i]=Math.SQRT2*level*Math.min(1,t/attack,(length-t)/.35)*Math.exp(-decay*t);
+ }
+ tone.setPeriodicWave(wave);tone.frequency.value=pitch;stereo.pan.value=pan;
+ gain.gain.setValueCurveAtTime(curve,time,length);
+ tone.connect(gain);gain.connect(stereo);stereo.connect(master);
+ tone.onended=()=>{tone.disconnect();gain.disconnect();stereo.disconnect();};
+ tone.start(time);tone.stop(time+length);
+}
+function scheduleScoreBar(audio,time,bar,random=Math.random){
+ const [root,fifth,color]=SCORE_CHORDS[bar%SCORE_CHORDS.length];
+ const vary=(value,range)=>value+(2*random()-1)*range;
+ scoreNote(audio,time,4.8,root/2,vary(.068,.006));
+ scoreNote(audio,time+vary(.33,.08),3.7,fifth,vary(.027,.004),vary(-.42,.09));
+ scoreNote(audio,time+vary(1.35,.17),2.8,color,vary(.022,.004),vary(.41,.09));
+ const chimes=[root*4,fifth*2,color*2];
+ if(bar===0||random()<.76){
+  const pitch=bar===0?chimes[0]:chimes[Math.floor(random()*chimes.length)];
+  scoreNote(audio,time+vary(1.37,1.05),1.35,pitch,vary(.065,.012),vary(0,.25),true);
+ }
+ if(random()<.23){
+  scoreNote(audio,time+vary(3.2,.28),1.35,color*.75,vary(.044,.008),vary(0,.2),true);
+ }
+}
+
+let soundEnabled=true,score=null;
 function wantsSound(){return soundEnabled&&document.pointerLockElement===canvas&&!document.hidden;}
-function createWaterAudio(){
- const ctx=new AudioContext({latencyHint:'interactive'});
- let seed=((performance.now()*1000)^0x42a71)|1;
- const random=()=>{seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return(seed>>>0)/4294967296;};
- const bus=ctx.createGain(),compressor=ctx.createDynamicsCompressor(),master=ctx.createGain();
- compressor.threshold.value=-18;compressor.knee.value=12;compressor.ratio.value=4;
- compressor.attack.value=.008;compressor.release.value=.3;master.gain.value=0;
- bus.connect(compressor);compressor.connect(master);master.connect(ctx.destination);
- // Noise is generated in memory; filtering and slow modulation form the water bed.
- const buffer=ctx.createBuffer(2,ctx.sampleRate*8,ctx.sampleRate);
- for(let channel=0;channel<2;channel++){
-  const data=buffer.getChannelData(channel);
-  for(let i=0;i<data.length;i++)data[i]=(random()*2-1)*.65;
+function queueScore(){
+ if(!score||!wantsSound()||score.ctx.state!=='running')return;
+ const time=score.ctx.currentTime;
+ // Keep a short lookahead. After a long frame stall, skip the late start.
+ if(score.nextBar<time)score.nextBar=time+.075;
+ if(score.nextBar<time+.30){
+  scheduleScoreBar(score,score.nextBar,score.bar++);
+  score.nextBar+=SCORE_BAR_SECONDS;
  }
- const noise=ctx.createBufferSource(),highpass=ctx.createBiquadFilter(),lowpass=ctx.createBiquadFilter(),waterGain=ctx.createGain();
- noise.buffer=buffer;noise.loop=true;highpass.type='highpass';highpass.frequency.value=45;
- lowpass.type='lowpass';lowpass.frequency.value=580;lowpass.Q.value=.55;waterGain.gain.value=.72;
- noise.connect(highpass);highpass.connect(lowpass);lowpass.connect(waterGain);waterGain.connect(bus);noise.start();
- const swell=ctx.createOscillator(),swellDepth=ctx.createGain();
- swell.frequency.value=.073;swellDepth.gain.value=.13;swell.connect(swellDepth);swellDepth.connect(waterGain.gain);swell.start();
- const filterMotion=ctx.createOscillator(),filterDepth=ctx.createGain();
- filterMotion.frequency.value=.047;filterDepth.gain.value=85;filterMotion.connect(filterDepth);filterDepth.connect(lowpass.frequency);filterMotion.start();
- // Quiet, slowly beating pressure tones sit beneath the water texture.
- for(const [frequency,level,pan] of [[58,.014,-.35],[83.1,.010,.35]]){
-  const tone=ctx.createOscillator(),gain=ctx.createGain(),position=ctx.createStereoPanner();
-  tone.type='sine';tone.frequency.value=frequency;gain.gain.value=level;position.pan.value=pan;
-  tone.connect(gain);gain.connect(position);position.connect(bus);tone.start();
- }
- return {ctx,bus,master,lowpass,waterGain,random,nextBubble:0,lastUpdate:0,pauseTimer:null};
 }
 function syncSoundState(){
- const audio=waterAudio;if(!audio)return;
+ if(!score)return;
+ const audio=score,{ctx,master}=audio;
  clearTimeout(audio.pauseTimer);
- const time=audio.ctx.currentTime;
- audio.master.gain.cancelScheduledValues(time);
  if(wantsSound()){
-  audio.ctx.resume().then(()=>{
-   if(waterAudio!==audio)return;
-   audio.master.gain.setTargetAtTime(wantsSound()?.45:0,audio.ctx.currentTime,.08);
-   audio.nextBubble=audio.ctx.currentTime+.4+audio.random()*.7;
-  }).catch(()=>{soundButton.textContent='Sound unavailable';});
+  ctx.resume().then(()=>{
+   if(!wantsSound())return;
+   master.gain.cancelAndHoldAtTime(ctx.currentTime);
+   master.gain.setTargetAtTime(1,ctx.currentTime,.06);
+   queueScore();
+  }).catch(()=>{if(wantsSound())soundButton.textContent='Sound unavailable · M';});
  }else{
-  audio.master.gain.setTargetAtTime(0,time,.035);
+  master.gain.cancelAndHoldAtTime(ctx.currentTime);
+  master.gain.setTargetAtTime(0,ctx.currentTime,.025);
   audio.pauseTimer=setTimeout(()=>{
-   if(!wantsSound())audio.ctx.suspend().catch(()=>{});
-  },250);
+   if(!wantsSound())ctx.suspend().catch(()=>{});
+  },180);
  }
 }
-function startWaterAudio(){
- try{if(!waterAudio)waterAudio=createWaterAudio();syncSoundState();}
- catch{soundButton.textContent='Sound unavailable';soundButton.disabled=true;}
+function startScore(){
+ try{
+  if(!score){
+   const ctx=new AudioContext({latencyHint:'interactive'});
+   const master=ctx.createGain();
+   master.gain.value=0;master.connect(ctx.destination);
+   score={ctx,master,wave:createScoreWave(ctx),nextBar:0,bar:0,pauseTimer:null};
+  }
+  syncSoundState();
+ }catch{soundButton.textContent='Sound unavailable · M';}
 }
 function toggleSound(){
  soundEnabled=!soundEnabled;
  soundButton.textContent=soundEnabled?'Sound on · M':'Sound off · M';
  soundButton.setAttribute('aria-pressed',String(soundEnabled));
- if(wantsSound())startWaterAudio();else syncSoundState();
-}
-function bubble(audio,time){
- const {ctx,random}=audio,duration=.19+random()*.24;
- const tone=ctx.createOscillator(),gain=ctx.createGain(),position=ctx.createStereoPanner();
- tone.type='sine';tone.frequency.setValueAtTime(650+random()*950,time);
- tone.frequency.exponentialRampToValueAtTime(130+random()*180,time+duration);
- gain.gain.setValueAtTime(0,time);gain.gain.linearRampToValueAtTime(.035+random()*.045,time+.012);
- gain.gain.exponentialRampToValueAtTime(.0001,time+duration);
- position.pan.value=(random()*2-1)*.75;
- tone.connect(gain);gain.connect(position);position.connect(audio.bus);
- tone.onended=()=>{tone.disconnect();gain.disconnect();position.disconnect();};
- tone.start(time);tone.stop(time+duration+.02);
-}
-function updateWaterAudio(depth,movement,now){
- const audio=waterAudio;
- if(!audio||!wantsSound()||audio.ctx.state!=='running')return;
- const time=audio.ctx.currentTime;
- if(now-audio.lastUpdate>.1){
-  audio.lastUpdate=now;
-  audio.lowpass.frequency.setTargetAtTime(Math.max(320,900-(24-depth)*9),time,.4);
-  audio.waterGain.gain.setTargetAtTime(.72+.12*Math.min(1,movement),time,.25);
- }
- if(audio.nextBubble<time+.1){
-  bubble(audio,time+.04);
-  audio.nextBubble=time+.75+audio.random()*2.1;
- }
+ if(wantsSound())startScore();else syncSoundState();
 }
 soundButton.addEventListener('click',toggleSound);
 document.addEventListener('visibilitychange',syncSoundState);
-function enterScene(){startWaterAudio();canvas.requestPointerLock();}
+function enterScene(){if(soundEnabled)startScore();canvas.requestPointerLock();}
 
 function onLock(){const locked=document.pointerLockElement===canvas;veil.classList.toggle('hidden',locked);hud.classList.toggle('on',locked&&showingHUD);syncSoundState();}
 document.addEventListener('pointerlockchange',onLock);
@@ -475,7 +476,7 @@ function frame(now){
  y+=(fy*f+v)*scale*speed;
  z+=(fz*f+rz*s)*scale*speed;
  x=Math.max(-92,Math.min(92,x));y=Math.max(-32.5,Math.min(22.5,y));z=Math.max(-115,Math.min(112,z));
- updateWaterAudio(y,Math.hypot(f,s,v),now*.001);
+ queueScore();
  U[0]=x;U[1]=y;U[2]=z;U[3]=seconds;
  U[4]=rx;U[5]=0;U[6]=rz;U[7]=Math.tan(.99/2)*(width/height);
  U[8]=ux;U[9]=uy;U[10]=uz;U[11]=Math.tan(.99/2);
