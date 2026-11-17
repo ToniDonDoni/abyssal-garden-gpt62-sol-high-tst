@@ -34,7 +34,7 @@ Audio excerpts and temporary inspection scripts stay local. The WAV recordings a
 
 ## Revision trace and limits
 
-The page's code badge identifies the implementation revision in this game repository and links to it. Its short hash remains visible independently of the HUD toggle. A later metadata-only stamp records that implementation hash; it does not add a build system or change the scene/audio logic.
+The page's code badge identifies implementation commit [`31a760d`](https://github.com/ToniDonDoni/abyssal-garden-gpt62-sol-high-tst/commit/31a760dc28a6082dc43fb4364507b38e7e63ab1b) in this game repository and links to it. Its short hash remains visible independently of the HUD toggle. A later metadata-only stamp records that implementation hash; it does not add a build system or change the scene/audio logic.
 
 The artistic result still differs from the color reference in geometry, subject placement and close-up material finesse. The visibility handler was exercised with a synthetic hidden/visible signal against the real audio graph: hidden suspended it, visible resumed it, and a muted preference stayed muted. A native hidden-tab transition was not established by browser automation, so that physical transition is not claimed as an observed pass.
 
