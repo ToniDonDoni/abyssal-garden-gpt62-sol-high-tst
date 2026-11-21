@@ -420,6 +420,142 @@ function resize(){
 }
 window.addEventListener('resize',resize);
 resize();
+// COLLISION_PHYSICS_START
+// Keep solid shapes consistent with the procedural WGSL scene above.
+const SWIM_RADIUS = .8;
+const SWIM_STEP = .35;
+const fract = value => value - Math.floor(value);
+const sceneHash = value => fract(Math.sin(value * 127.1 + 14.67) * 43758.5453);
+function sceneSmoothstep(low, high, value) {
+ const t = Math.max(0, Math.min(1, (value - low) / (high - low)));
+ return t * t * (3 - 2 * t);
+}
+function terrainNoise(x, z) {
+ const ix = Math.floor(x), iz = Math.floor(z);
+ const fx = fract(x), fz = fract(z);
+ const ux = fx * fx * (3 - 2 * fx), uz = fz * fz * (3 - 2 * fz);
+ const a = sceneHash(ix * 127.1 + iz * 311.7);
+ const b = sceneHash((ix + 1) * 127.1 + iz * 311.7);
+ const c = sceneHash(ix * 127.1 + (iz + 1) * 311.7);
+ const d = sceneHash((ix + 1) * 127.1 + (iz + 1) * 311.7);
+ return (a * (1 - ux) + b * ux) * (1 - uz) + (c * (1 - ux) + d * ux) * uz;
+}
+function terrainHeight(x, z) {
+ const offset = 7 * Math.sin(z * .035) + 3 * Math.sin(z * .082);
+ const distance = Math.abs(x + offset);
+ const wall = sceneSmoothstep(15, 55, distance);
+ return -29 - 16 * (1 - sceneSmoothstep(7, 18, distance)) + 22 * wall
+  + 1.65 * Math.sin(x * .18 + z * .13)
+  + 1.2 * Math.sin(z * .27 - x * .09)
+  + 1.85 * (terrainNoise(x * .115, z * .115) - .5)
+  + 2.2 * wall * Math.sin(z * .16 + x * .11);
+}
+function wallRockRoot(id) {
+ const side = id % 2 === 1 ? 1 : -1;
+ return [side * (30 + 26 * sceneHash(id * 2.13 + 14)), 18 - 138 * sceneHash(id * 3.47 + 7)];
+}
+const COLLISION_ROCKS = [];
+for (const [kind, count] of [[2, 88], [3, 24]]) {
+ for (let id = 0; id < count; id++) {
+  const index = id + 20;
+  const [x, z] = wallRockRoot(index);
+  const size = 1.1 + 3.2 * sceneHash(index * 2.1);
+  const lift = kind === 2 ? -.5 + 1.7 * sceneHash(index * 5.2) : 5 + 15 * sceneHash(index * 5.2);
+  // Shader warp is bounded by +/- 0.32. Pad the ellipsoid for the camera body.
+  COLLISION_ROCKS.push({
+   kind, x, y: terrainHeight(x, z) + lift, z,
+   rx: size * 1.32 + SWIM_RADIUS,
+   ry: size * (.65 + .6 * sceneHash(index * 4)) * 1.32 + SWIM_RADIUS,
+   rz: size * 1.15 * 1.32 + SWIM_RADIUS
+  });
+ }
+}
+function cameraBlocked(x, y, z) {
+ if (x < -92 || x > 92 || y < -32.5 || y > 22.5 || z < -115 || z > 112) return true;
+ // Sample around the swimmer, not just at its center, to avoid clipping slopes.
+ const footprint = SWIM_RADIUS * .85;
+ if (y < SWIM_RADIUS + Math.max(
+  terrainHeight(x, z), terrainHeight(x + footprint, z),
+  terrainHeight(x - footprint, z), terrainHeight(x, z + footprint),
+  terrainHeight(x, z - footprint)
+ )) return true;
+ for (const rock of COLLISION_ROCKS) {
+  const dx = (x - rock.x) / rock.rx;
+  if (Math.abs(dx) >= 1) continue;
+  const dy = (y - rock.y) / rock.ry;
+  if (Math.abs(dy) >= 1) continue;
+  const dz = (z - rock.z) / rock.rz;
+  if (dx * dx + dy * dy + dz * dz < 1) return true;
+ }
+ // Three solid stone arches follow the same parametric curves as KIND 1.
+ for (let id = 0; id < 3; id++) {
+  const archZ = -92 - id * 31;
+  if (Math.abs(z - archZ) > 4.2) continue;
+  const shift = id % 2 ? 55 : -55;
+  for (let sample = 0; sample <= 48; sample++) {
+   const angle = Math.PI * sample / 48;
+   const ax = shift + (17 + id * 4) * Math.cos(angle);
+   const ay = -12 + (22 + id * 3) * Math.sin(angle);
+   const radius = 2.6 + .7 * Math.sin(angle * 7 + id) ** 2 + SWIM_RADIUS + .2;
+   if ((x - ax) ** 2 + (y - ay) ** 2 + (z - archZ) ** 2 < radius ** 2) return true;
+  }
+ }
+ // Ship hull/deck and mast sails: inexpensive conservative local-space volumes.
+ const shipAngle = -.37, sc = Math.cos(shipAngle), ss = Math.sin(shipAngle);
+ const shipDx = x + 16, shipDz = z + 34;
+ const sx = sc * shipDx - ss * shipDz;
+ const sz = ss * shipDx + sc * shipDz;
+ const sy = y + 19.5;
+ const taper = Math.max(.02, 1 - (Math.abs(sz) / 15.5) ** 2.7) ** .7;
+ if (Math.abs(sz) < 14 + SWIM_RADIUS && Math.abs(sx) < 5.8 * taper + SWIM_RADIUS
+  && sy > -8.5 - SWIM_RADIUS && sy < -.8 + SWIM_RADIUS) return true;
+ for (let mast = 0; mast < 3; mast++) {
+  const mz = -9 + mast * 9;
+  if (Math.abs(sz - mz) < 1.6 + SWIM_RADIUS && sy >= 1.5 - SWIM_RADIUS && sy < 9.5 + SWIM_RADIUS
+   && Math.abs(sx) < 5.2 - mast * .75 + SWIM_RADIUS) return true;
+ }
+ // Whale-fluke plinth, stem and wings in the monument's local coordinates.
+ const monumentAngle = .25, mc = Math.cos(monumentAngle), ms = Math.sin(monumentAngle);
+ const monumentDx = x - 22, monumentDz = z + 49;
+ const mx = mc * monumentDx - ms * monumentDz;
+ const mz = ms * monumentDx + mc * monumentDz;
+ const my = y + 25;
+ if (my > -2.1 - SWIM_RADIUS && my < 1.1 + SWIM_RADIUS
+  && (mx / (4.8 + SWIM_RADIUS)) ** 2 + (mz / (3.1 + SWIM_RADIUS)) ** 2 < 1) return true;
+ if (my > -SWIM_RADIUS && my < 10 + SWIM_RADIUS && mx * mx + mz * mz < (2.2 + SWIM_RADIUS) ** 2) return true;
+ if (my > 8 - SWIM_RADIUS && my < 18 + SWIM_RADIUS) {
+  for (const side of [-1, 1]) {
+   for (let i = 0; i <= 20; i++) {
+    const spread = i / 20;
+    const wingX = side * 8.5 * spread;
+    const wingY = 9.2 + 2.6 * spread + 3.3 * Math.sin(spread * Math.PI * .8);
+    const wingZ = 2 * spread * spread;
+    const chord = (.4 + 2.3 * Math.sin(spread * Math.PI * .92)) * (1 - .38 * spread);
+    if (Math.abs(mx - wingX) < SWIM_RADIUS + .45
+     && Math.abs(my - wingY) < SWIM_RADIUS + .35
+     && Math.abs(mz - wingZ) < chord + SWIM_RADIUS) return true;
+   }
+  }
+ }
+ return false;
+}
+function resolveSwimMovement(position, delta) {
+ let [cx, cy, cz] = position;
+ const steps = Math.max(1, Math.ceil(Math.hypot(...delta) / SWIM_STEP));
+ const [dx, dy, dz] = delta.map(value => value / steps);
+ for (let i = 0; i < steps; i++) {
+  if (!cameraBlocked(cx + dx, cy + dy, cz + dz)) {
+   cx += dx; cy += dy; cz += dz;
+  } else {
+   // Reject the blocked component but preserve free-axis swimming/sliding.
+   if (!cameraBlocked(cx + dx, cy, cz)) cx += dx;
+   if (!cameraBlocked(cx, cy + dy, cz)) cy += dy;
+   if (!cameraBlocked(cx, cy, cz + dz)) cz += dz;
+  }
+ }
+ return [cx, cy, cz];
+}
+// COLLISION_PHYSICS_END
 const keys=new Uint8Array(256);
 const START_POSE=[0,-12,43,0,-.019];
 let [x,y,z,yaw,pitch]=START_POSE;
@@ -642,10 +778,11 @@ function frame(now){
  const v=keys[69]-keys[81];
  const speed=(keys[16]?29:9)*dt;
  const scale=1/Math.max(1,Math.hypot(f,s,v));
- x+=(fx*f+rx*s)*scale*speed;
- y+=(fy*f+v)*scale*speed;
- z+=(fz*f+rz*s)*scale*speed;
- x=Math.max(-92,Math.min(92,x));y=Math.max(-32.5,Math.min(22.5,y));z=Math.max(-115,Math.min(112,z));
+ [x,y,z]=resolveSwimMovement([x,y,z],[
+  (fx*f+rx*s)*scale*speed,
+  (fy*f+v)*scale*speed,
+  (fz*f+rz*s)*scale*speed
+ ]);
  queueScore();
  U[0]=x;U[1]=y;U[2]=z;U[3]=seconds;
  U[4]=rx;U[5]=0;U[6]=rz;U[7]=Math.tan(.99/2)*(width/height);
