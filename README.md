@@ -33,7 +33,7 @@ Open the root `index.html` directly in a recent WebGPU-enabled Chrome browser. N
 
 Music starts after entering the scene and resumes from the same position after a pause.
 
-A small `Version 2.0` label is visible at the bottom of the first screen. This label is maintained in `index.html`.
+A small `Version 2.1` label is visible at the bottom of the first screen. This label is maintained in `index.html`.
 
 ## Specifications and references
 

@@ -54,7 +54,7 @@
 </head>
 <body>
 <canvas id="view"></canvas>
-<span id="version">Version 2.0</span>
+<span id="version">Version 2.1</span>
 <button id="sound" type="button" aria-pressed="true" title="Toggle Deep Drift (M)">Sound on · M</button>
 <div id="hud"><div class="top">A B Y S S A L · G A R D E N<strong>Indigo Depths</strong></div><div class="cross"></div><div class="bottom">W A S D · Drift &nbsp; | &nbsp; Q E · Descend / Ascend &nbsp; | &nbsp; Shift · Glide faster &nbsp; | &nbsp; M · Mute / Unmute</div><div class="corner">Kuindzhi × Lalique · V3 &nbsp; / &nbsp; R · Reset position &nbsp; / &nbsp; Esc · Release mouse &nbsp; / &nbsp; H · HUD</div></div>
 <div id="touch-controls" hidden>
@@ -632,7 +632,7 @@ window.addEventListener('mousemove',e=>{
 function frame(now){
  if(renderFailed)return;
  const dt=Math.min(.042,(now-last)*.001);last=now;seconds+=dt;
- if(phone&&isPlaying()&&!document.hidden)turn(lookStick.x*1.8*dt,lookStick.y*1.45*dt);
+ if(phone&&isPlaying()&&!document.hidden)turn(lookStick.x*.9*dt,lookStick.y*.725*dt);
  const sy=Math.sin(yaw),cy=Math.cos(yaw),sp=Math.sin(pitch),cp=Math.cos(pitch);
  const fx=sy*cp,fy=sp,fz=-cy*cp;
  const rx=cy,rz=sy;
