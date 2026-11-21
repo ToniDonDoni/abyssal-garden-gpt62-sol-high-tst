@@ -1,6 +1,6 @@
 # Abyssal Garden
 
-A procedural fantasy underwater world you can explore with a free-flying camera. The indigo scene contains swaying kelp, enamel coral, a sunken ship, manta rays, fish, a stone whale-fluke monument, diffuse light and underwater fog. Its procedural soundtrack, **Deep Drift**, plays a repeating four-chord progression with chimes that vary in pitch and timing. The dynamics and stereo placement also vary as you explore.
+A procedural fantasy underwater world you can explore with a collision-aware swimming camera. The indigo scene contains swaying kelp, enamel coral, a sunken ship, manta rays, fish, a stone whale-fluke monument, diffuse light and underwater fog. Its procedural soundtrack, **Deep Drift**, plays a repeating four-chord progression with chimes that vary in pitch and timing. The dynamics and stereo placement also vary as you explore.
 
 ## Inspired by
 
@@ -33,13 +33,14 @@ Open the root `index.html` directly in a recent WebGPU-enabled Chrome browser. N
 
 Music starts after entering the scene and resumes from the same position after a pause.
 
-A small `Version 2.1` label is visible at the bottom of the first screen. This label is maintained in `index.html`.
+A small `Version 2.1` label is visible at the bottom of the first screen. This label is maintained in `index.html`. Swimming now blocks movement into terrain, large rocks and fixed ship/monument geometry.
 
 ## Specifications and references
 
 - [SPEC-001: Indigo scene and original underwater sound](SPECS/SPEC-001-INDIGO-WATER-AUDIO.md)
 - [SPEC-002: Deep Drift procedural score](SPECS/SPEC-002-DEEP-DRIFT-SCORE.md)
 - [SPEC-003: Mobile touch controls](SPECS/SPEC-003-MOBILE-TOUCH-CONTROLS.md)
+- [SPEC-004: Solid obstacle collisions](SPECS/SPEC-004-SWIM-COLLISIONS.md)
 - [Supplied indigo color reference](SPECS/REFERENCES/SPEC-001-INDIGO-WATER-AUDIO-INDIGO.png)
 - [Rendered observations and historical procedural-audio review](SPECS/SPEC-001-INDIGO-WATER-AUDIO-REVIEW.md)
 
@@ -54,10 +55,11 @@ The action checks the root `index.html` directly: HTMLHint lints the markup, Nod
 ```sh
 npm ci --ignore-scripts
 npm run lint
+npm test
 npm run check
 ```
 
-The shader check requires Naga CLI. There is no build script or generated HTML copy.
+The shader check requires Naga CLI. No build step is needed. For PR review, `preview/swim-collisions.html` is a standalone, byte-identical copy of `index.html`; `npm test` checks that the copy stays in sync.
 
 ## Development effort (approximate)
 

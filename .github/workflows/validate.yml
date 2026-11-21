@@ -24,6 +24,8 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Lint root HTML
         run: npm run lint
+      - name: Test swim collision physics
+        run: npm test
       - uses: dtolnay/rust-toolchain@stable
       - uses: actions/cache@v4
         with:
