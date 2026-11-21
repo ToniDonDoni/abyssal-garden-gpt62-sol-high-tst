@@ -1,6 +1,6 @@
 # SPEC-003: Mobile Touch Controls
 
-**Status** — Draft for review
+**Status** — Approved
 
 ## Objective
 
