@@ -9,7 +9,7 @@ The [original Abyssal Garden prompt](https://github.com/Noniv/abyssal-garden/blo
 ## Prerequisites
 
 - **Development environment:** ChatGPT with GitHub integration for the original prototype; **Codex desktop** for the artistic-style refactoring, indigo transfer and procedural-audio implementation.
-- **To run:** A recent Chrome browser with WebGPU and hardware acceleration enabled.
+- **To run:** A recent desktop Chrome with WebGPU and hardware acceleration enabled, or a WebGPU-capable phone running iOS Safari or Android Chrome.
 - **To run code checks locally (optional):** Node.js 22, HTMLHint and Naga CLI.
 
 ## Technologies
@@ -27,7 +27,11 @@ No Three.js, Babylon.js, other engines, external models, or texture files.
 
 Open the root `index.html` directly in a recent WebGPU-enabled Chrome browser. No build step is required.
 
-**Controls:** WASD to move, mouse to look, Q to descend, E to ascend, Shift to accelerate, R to reset, Esc to release the mouse and pause music, H to toggle the HUD, **M to mute/unmute**. Music starts after entering the scene and resumes from the same position after a pause.
+**Desktop controls:** WASD to move, mouse to look, Q to descend, E to ascend, Shift to accelerate, R to reset, Esc to release the mouse and pause music, H to toggle the HUD, **M to mute/unmute**.
+
+**Phone controls:** Open the page over HTTPS and tap **Enter the abyss**. Use the lower-left stick to swim and strafe, and the lower-right stick to turn and tilt the camera. Use both sticks together to swim toward the current view or change depth. The sound button toggles Deep Drift.
+
+Music starts after entering the scene and resumes from the same position after a pause.
 
 A small `Version 2.0` label is visible at the bottom of the first screen. This label is maintained in `index.html`.
 
@@ -35,6 +39,7 @@ A small `Version 2.0` label is visible at the bottom of the first screen. This l
 
 - [SPEC-001: Indigo scene and original underwater sound](SPECS/SPEC-001-INDIGO-WATER-AUDIO.md)
 - [SPEC-002: Deep Drift procedural score](SPECS/SPEC-002-DEEP-DRIFT-SCORE.md)
+- [SPEC-003: Mobile touch controls](SPECS/SPEC-003-MOBILE-TOUCH-CONTROLS.md)
 - [Supplied indigo color reference](SPECS/REFERENCES/SPEC-001-INDIGO-WATER-AUDIO-INDIGO.png)
 - [Rendered observations and historical procedural-audio review](SPECS/SPEC-001-INDIGO-WATER-AUDIO-REVIEW.md)
 

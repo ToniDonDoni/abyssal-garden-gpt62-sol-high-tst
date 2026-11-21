@@ -10,6 +10,46 @@
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#03061f;color:#e6deff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}canvas{display:block;width:100%;height:100%;cursor:crosshair}#veil{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 42%,#4030a772,#03051aed 69%);transition:opacity .75s;pointer-events:auto;cursor:pointer}#veil.hidden{opacity:0;pointer-events:none}.hero{text-align:center;max-width:580px;padding:40px}.overline{font-size:11px;letter-spacing:.5em;text-transform:uppercase;color:#bda7ff}h1{font-family:Georgia,serif;font-size:clamp(44px,6.2vw,88px);line-height:.9;letter-spacing:.08em;font-weight:400;margin:23px 0 12px;text-shadow:0 0 65px #9176ff66}.hero p{font-size:13px;letter-spacing:.13em;color:#bfb8df;line-height:2.1}.action{display:inline-block;margin:40px auto 20px;padding:12px 29px;border:1px solid #9277ebae;letter-spacing:.29em;text-transform:uppercase;font-size:11px;background:#8162eb12}.hint{font-size:10px!important;letter-spacing:.16em!important;opacity:.67}#hud{position:fixed;inset:0;pointer-events:none;display:none}#hud.on{display:block}.top{position:absolute;top:26px;left:30px;letter-spacing:.2em;font-size:10px;text-transform:uppercase;color:#c6b8ff9c}.top strong{display:block;letter-spacing:.17em;font:20px Georgia,serif;color:#e6ddffe5;margin-top:7px;font-weight:400}.bottom{position:absolute;bottom:23px;left:30px;font-size:10px;letter-spacing:.17em;color:#cec4ff99;text-transform:uppercase}.corner{position:absolute;right:29px;bottom:23px;font-size:9px;letter-spacing:.2em;color:#9b91cb9c;text-transform:uppercase}.cross{position:absolute;left:50%;top:50%;width:4px;height:4px;border:1px solid #ded3ffa6;border-radius:50%;transform:translate(-50%,-50%)}#error{white-space:pre-wrap;max-width:620px;margin:20px auto;color:#ffbebe;font:13px/1.7 system-ui}
 #sound{position:fixed;right:25px;top:25px;border:1px solid #a68aff70;border-radius:4px;padding:9px 12px;background:#0a0829c9;color:#e3dcff;font:11px system-ui;letter-spacing:.08em;cursor:pointer;z-index:2}#sound:hover,#sound:focus-visible{border-color:#c7b6ff;outline:2px solid #8b66ee80;outline-offset:3px}#sound:disabled{opacity:.6;cursor:default}
 #version{position:fixed;left:30px;bottom:7px;z-index:2;color:#bca8e5a8;font:10px ui-monospace,monospace;letter-spacing:.04em}
+.phone-hint{display:none}
+.phone .desktop-hint,.phone .bottom,.phone .corner,.phone.playing #version{display:none}
+.phone .phone-hint{display:block}
+.phone .hero{padding:24px 20px}
+.phone #version{left:max(22px,calc(env(safe-area-inset-left) + 12px));bottom:calc(env(safe-area-inset-bottom) + 7px)}
+.phone .top{
+ top:max(22px,calc(env(safe-area-inset-top) + 12px));
+ left:max(22px,calc(env(safe-area-inset-left) + 12px));
+ color:#d5c7f9;font-size:8px;letter-spacing:.15em;
+}
+.phone .top strong{margin-top:5px;font-size:19px;letter-spacing:.04em}
+.phone #sound{
+ top:max(22px,calc(env(safe-area-inset-top) + 12px));
+ right:max(22px,calc(env(safe-area-inset-right) + 12px));
+}
+#touch-controls{position:fixed;inset:0;pointer-events:none}
+.touch-stick{
+ position:absolute;bottom:calc(env(safe-area-inset-bottom) + 51px);
+ display:grid;place-items:center;width:76px;height:76px;border-radius:50%;
+ border:1px solid #c0aafaab;
+ background:radial-gradient(circle,#51417a53 0%,#1a1039b0 72%,#3023569c 100%);
+ box-shadow:0 3px 16px #04031670,inset 0 0 12px #ae91fa2b;
+ pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+}
+#swim-stick{left:calc(env(safe-area-inset-left) + 32px)}
+#look-stick{right:calc(env(safe-area-inset-right) + 32px)}
+.stick-thumb{
+ width:30px;height:30px;border:1px solid #e3d3ffb5;border-radius:50%;
+ background:radial-gradient(circle at 40% 32%,#ae90e6a8,#5f4b96b8 72%);
+ box-shadow:0 2px 7px #04031678,inset 0 0 4px #f1e2ff50;
+ transform:translate(var(--stick-x,0px),var(--stick-y,0px));pointer-events:none;
+}
+.stick-arrow{
+ position:absolute;width:5px;height:5px;border-top:1px solid #f0e4ffd9;
+ border-left:1px solid #f0e4ffd9;pointer-events:none;
+}
+.stick-arrow.up{top:11px;left:calc(50% - 2.5px);transform:rotate(45deg)}
+.stick-arrow.right{right:11px;top:calc(50% - 2.5px);transform:rotate(135deg)}
+.stick-arrow.down{bottom:11px;left:calc(50% - 2.5px);transform:rotate(225deg)}
+.stick-arrow.left{left:11px;top:calc(50% - 2.5px);transform:rotate(315deg)}
 </style>
 </head>
 <body>
@@ -17,20 +57,44 @@
 <span id="version">Version 2.0</span>
 <button id="sound" type="button" aria-pressed="true" title="Toggle Deep Drift (M)">Sound on · M</button>
 <div id="hud"><div class="top">A B Y S S A L · G A R D E N<strong>Indigo Depths</strong></div><div class="cross"></div><div class="bottom">W A S D · Drift &nbsp; | &nbsp; Q E · Descend / Ascend &nbsp; | &nbsp; Shift · Glide faster &nbsp; | &nbsp; M · Mute / Unmute</div><div class="corner">Kuindzhi × Lalique · V3 &nbsp; / &nbsp; R · Reset position &nbsp; / &nbsp; Esc · Release mouse &nbsp; / &nbsp; H · HUD</div></div>
-<div id="veil"><div class="hero"><div class="overline">Explore the moonlit canyon</div><h1>ABYSSAL<br>GARDEN</h1><p>INDIGO · LIVING DEPTHS</p><div class="action" id="action">Enter the abyss</div><p class="hint">WASD TO SWIM · MOUSE TO LOOK · Q/E VERTICAL · SHIFT BOOST · R RESTART<br>DEEP DRIFT · M TO MUTE / UNMUTE</p><div id="error"></div></div></div>
+<div id="touch-controls" hidden>
+ <div class="touch-stick" id="swim-stick" role="group" aria-label="Swim">
+  <span class="stick-thumb"></span>
+  <span class="stick-arrow up"></span><span class="stick-arrow right"></span>
+  <span class="stick-arrow down"></span><span class="stick-arrow left"></span>
+ </div>
+ <div class="touch-stick" id="look-stick" role="group" aria-label="Look around">
+  <span class="stick-thumb"></span>
+  <span class="stick-arrow up"></span><span class="stick-arrow right"></span>
+  <span class="stick-arrow down"></span><span class="stick-arrow left"></span>
+ </div>
+</div>
+<div id="veil"><div class="hero"><div class="overline">Explore the moonlit canyon</div><h1>ABYSSAL<br>GARDEN</h1><p>INDIGO · LIVING DEPTHS</p><div class="action" id="action">Enter the abyss</div><p class="hint desktop-hint">WASD TO SWIM · MOUSE TO LOOK · Q/E VERTICAL · SHIFT BOOST · R RESTART<br>DEEP DRIFT · M TO MUTE / UNMUTE</p><p class="hint phone-hint">LEFT STICK TO SWIM · RIGHT STICK TO LOOK</p><div id="error"></div></div></div>
 <script type="module">
 const canvas=document.getElementById('view');
 const veil=document.getElementById('veil');
 const action=document.getElementById('action');
 const hud=document.getElementById('hud');
+const touchControls=document.getElementById('touch-controls');
 const error=document.getElementById('error');
-if(!navigator.gpu){error.textContent='This world needs WebGPU. Please use a recent GPU-enabled Chrome browser.';action.textContent='WebGPU unavailable';throw Error('WebGPU unavailable');}
+const soundButton=document.getElementById('sound');
+// Touch capability or a narrow viewport alone also matches laptops and tablets.
+const androidPhone=navigator.userAgentData?.platform==='Android'
+ ?navigator.userAgentData.mobile
+ :/\bAndroid\b.*\bMobile\b/.test(navigator.userAgent);
+const phone=navigator.maxTouchPoints>0&&(
+ /\biPhone\b/.test(navigator.userAgent)||androidPhone
+);
+const soundShortcut=phone?'':' · M';
+document.body.classList.toggle('phone',phone);
+if(phone){
+ soundButton.textContent='Sound on';
+ soundButton.title='Toggle Deep Drift';
+}
+if(!navigator.gpu){error.textContent='This world needs a recent WebGPU-enabled browser.';action.textContent='WebGPU unavailable';throw Error('WebGPU unavailable');}
 const adapter=await navigator.gpu.requestAdapter({powerPreference:'high-performance'});
 if(!adapter){error.textContent='No WebGPU adapter is available. Enable hardware acceleration in Chrome.';throw Error('No WebGPU adapter');}
 const device=await adapter.requestDevice();
-function showRenderError(message){error.textContent=message;veil.classList.remove('hidden');action.textContent='Reload to try again';}
-device.addEventListener('uncapturederror',e=>showRenderError(e.error.message));
-device.lost.then(info=>showRenderError('The graphics device was lost. '+info.message));
 const context=canvas.getContext('webgpu');
 const format=navigator.gpu.getPreferredCanvasFormat();
 const sampleCount=4;
@@ -361,7 +425,67 @@ const START_POSE=[0,-12,43,0,-.019];
 let [x,y,z,yaw,pitch]=START_POSE;
 let last=performance.now(),seconds=0;
 let showingHUD=true;
-const soundButton=document.getElementById('sound');
+let playingOnPhone=false,renderFailed=false;
+function isPlaying(){
+ return !renderFailed&&(phone?playingOnPhone:document.pointerLockElement===canvas);
+}
+function makeTouchStick(element){
+ const travel=22,deadZone=.16;
+ let finger=null,centerX=0,centerY=0;
+ const stick={x:0,y:0,reset};
+
+ function update(event){
+  const dx=event.clientX-centerX,dy=event.clientY-centerY;
+  const distance=Math.hypot(dx,dy);
+  const thumbScale=travel/Math.max(travel,distance);
+  element.style.setProperty('--stick-x',dx*thumbScale+'px');
+  element.style.setProperty('--stick-y',dy*thumbScale+'px');
+
+  const deflection=Math.min(1,distance/travel);
+  const strength=Math.max(0,deflection-deadZone)/(1-deadZone);
+  const inputScale=strength/Math.max(1,distance);
+  stick.x=dx*inputScale;
+  stick.y=dy*inputScale;
+ }
+
+ function reset(){
+  const pointer=finger;
+  finger=null;
+  stick.x=stick.y=0;
+  element.style.removeProperty('--stick-x');
+  element.style.removeProperty('--stick-y');
+  if(pointer!==null&&element.hasPointerCapture(pointer))element.releasePointerCapture(pointer);
+ }
+
+ element.addEventListener('pointerdown',event=>{
+  if(event.pointerType!=='touch'||finger!==null||!isPlaying())return;
+  element.setPointerCapture(event.pointerId);
+  finger=event.pointerId;
+  const bounds=element.getBoundingClientRect();
+  centerX=bounds.left+bounds.width/2;
+  centerY=bounds.top+bounds.height/2;
+  update(event);
+ });
+ element.addEventListener('pointermove',event=>{
+  if(event.pointerId===finger)update(event);
+ });
+ function finish(event){
+  if(event.pointerId===finger)reset();
+ }
+ element.addEventListener('pointerup',finish);
+ element.addEventListener('pointercancel',finish);
+ element.addEventListener('lostpointercapture',finish);
+ element.addEventListener('contextmenu',event=>event.preventDefault());
+ return stick;
+}
+const swimStick=makeTouchStick(document.getElementById('swim-stick'));
+const lookStick=makeTouchStick(document.getElementById('look-stick'));
+function resetTouchSticks(){swimStick.reset();lookStick.reset();}
+function clearInput(){keys.fill(0);resetTouchSticks();}
+if(phone){
+ matchMedia('(orientation: portrait)').addEventListener('change',resetTouchSticks);
+ screen.orientation?.addEventListener('change',resetTouchSticks);
+}
 // Deep Drift's four-chord progression and three-part sine timbre.
 const SCORE_CHORDS=[
  [110,164.81,261.63],[87.31,130.81,220],
@@ -402,7 +526,7 @@ function scheduleScoreBar(audio,time,bar,random=Math.random){
 }
 
 let soundEnabled=true,score=null;
-function wantsSound(){return soundEnabled&&document.pointerLockElement===canvas&&!document.hidden;}
+function wantsSound(){return soundEnabled&&isPlaying()&&!document.hidden;}
 function queueScore(){
  if(!score||!wantsSound()||score.ctx.state!=='running')return;
  const time=score.ctx.currentTime;
@@ -423,7 +547,7 @@ function syncSoundState(){
    master.gain.cancelAndHoldAtTime(ctx.currentTime);
    master.gain.setTargetAtTime(1,ctx.currentTime,.06);
    queueScore();
-  }).catch(()=>{if(wantsSound())soundButton.textContent='Sound unavailable · M';});
+  }).catch(()=>{if(wantsSound())soundButton.textContent='Sound unavailable'+soundShortcut;});
  }else{
   master.gain.cancelAndHoldAtTime(ctx.currentTime);
   master.gain.setTargetAtTime(0,ctx.currentTime,.025);
@@ -441,35 +565,81 @@ function startScore(){
    score={ctx,master,wave:createScoreWave(ctx),nextBar:0,bar:0,pauseTimer:null};
   }
   syncSoundState();
- }catch{soundButton.textContent='Sound unavailable · M';}
+ }catch{soundButton.textContent='Sound unavailable'+soundShortcut;}
 }
 function toggleSound(){
  soundEnabled=!soundEnabled;
- soundButton.textContent=soundEnabled?'Sound on · M':'Sound off · M';
+ soundButton.textContent=(soundEnabled?'Sound on':'Sound off')+soundShortcut;
  soundButton.setAttribute('aria-pressed',String(soundEnabled));
  if(wantsSound())startScore();else syncSoundState();
 }
 soundButton.addEventListener('click',toggleSound);
-document.addEventListener('visibilitychange',syncSoundState);
-function enterScene(){if(soundEnabled)startScore();canvas.requestPointerLock();}
-
-function onLock(){const locked=document.pointerLockElement===canvas;veil.classList.toggle('hidden',locked);hud.classList.toggle('on',locked&&showingHUD);syncSoundState();}
-document.addEventListener('pointerlockchange',onLock);
+document.addEventListener('visibilitychange',()=>{
+ if(document.hidden)clearInput();
+ syncSoundState();
+});
+function updateScene(){
+ const active=isPlaying();
+ document.body.classList.toggle('playing',active);
+ veil.classList.toggle('hidden',active);
+ hud.classList.toggle('on',active&&(phone||showingHUD));
+ touchControls.hidden=!(active&&phone);
+ if(!active)clearInput();
+ syncSoundState();
+}
+function enterScene(){
+ if(renderFailed||isPlaying())return;
+ if(phone){
+  playingOnPhone=true;
+  updateScene();
+  if(soundEnabled)startScore();
+ }else{
+  if(soundEnabled)startScore();
+  const lock=canvas.requestPointerLock?.();
+  lock?.catch(()=>{});
+ }
+}
+function showRenderError(message){
+ renderFailed=true;
+ error.textContent=message;
+ action.textContent='Reload to try again';
+ if(document.pointerLockElement===canvas)document.exitPointerLock();
+ updateScene();
+}
+device.addEventListener('uncapturederror',e=>showRenderError(e.error.message));
+device.lost.then(info=>showRenderError('The graphics device was lost. '+info.message));
+document.addEventListener('pointerlockchange',updateScene);
 veil.addEventListener('click',enterScene);
-canvas.addEventListener('click',()=>{if(document.pointerLockElement!==canvas)enterScene();});
-window.addEventListener('keydown',e=>{if(e.code==='KeyM'&&!e.repeat)toggleSound();if(e.code==='Escape'&&document.pointerLockElement===canvas)document.exitPointerLock();if(e.code==='KeyH'){showingHUD=!showingHUD;hud.classList.toggle('on',showingHUD&&document.pointerLockElement===canvas);}if(e.code==='KeyR'){[x,y,z,yaw,pitch]=START_POSE;}let code=e.keyCode;if(code<256)keys[code]=1;if(code===32||code===38||code===40)e.preventDefault();});
+canvas.addEventListener('click',enterScene);
+window.addEventListener('keydown',e=>{
+ if(e.code==='KeyM'&&!e.repeat)toggleSound();
+ if(e.code==='Escape'&&document.pointerLockElement===canvas)document.exitPointerLock();
+ if(e.code==='KeyH'&&!phone){showingHUD=!showingHUD;hud.classList.toggle('on',showingHUD&&isPlaying());}
+ if(e.code==='KeyR'){[x,y,z,yaw,pitch]=START_POSE;}
+ const code=e.keyCode;
+ if(!phone&&isPlaying()&&code<256)keys[code]=1;
+ if(code===32||code===38||code===40)e.preventDefault();
+});
 window.addEventListener('keyup',e=>{if(e.keyCode<256)keys[e.keyCode]=0;});
-window.addEventListener('blur',()=>keys.fill(0));
-window.addEventListener('mousemove',e=>{if(document.pointerLockElement===canvas){yaw+=e.movementX*.00185;pitch-=e.movementY*.00185;pitch=Math.min(1.49,Math.max(-1.49,pitch));}});
+window.addEventListener('blur',clearInput);
+function turn(horizontal,vertical){
+ yaw+=horizontal;
+ pitch=Math.min(1.49,Math.max(-1.49,pitch-vertical));
+}
+window.addEventListener('mousemove',e=>{
+ if(!phone&&isPlaying())turn(e.movementX*.00185,e.movementY*.00185);
+});
 function frame(now){
+ if(renderFailed)return;
  const dt=Math.min(.042,(now-last)*.001);last=now;seconds+=dt;
+ if(phone&&isPlaying()&&!document.hidden)turn(lookStick.x*1.8*dt,lookStick.y*1.45*dt);
  const sy=Math.sin(yaw),cy=Math.cos(yaw),sp=Math.sin(pitch),cp=Math.cos(pitch);
  const fx=sy*cp,fy=sp,fz=-cy*cp;
  const rx=cy,rz=sy;
  const ux=-sy*sp,uy=cp,uz=cy*sp;
- let f=(keys[87]?1:0)-(keys[83]?1:0);
- let s=(keys[68]?1:0)-(keys[65]?1:0);
- let v=(keys[69]?1:0)-(keys[81]?1:0);
+ const f=phone?-swimStick.y:keys[87]-keys[83];
+ const s=phone?swimStick.x:keys[68]-keys[65];
+ const v=keys[69]-keys[81];
  const speed=(keys[16]?29:9)*dt;
  const scale=1/Math.max(1,Math.hypot(f,s,v));
  x+=(fx*f+rx*s)*scale*speed;
